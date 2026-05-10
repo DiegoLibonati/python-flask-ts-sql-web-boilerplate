@@ -2,79 +2,9 @@
 
 ## Educational Purpose
 
-This project was created primarily for **educational and learning purposes**.  
-While it is well-structured and could technically be used in production, it is **not intended for commercialization**.  
+This project was created primarily for **educational and learning purposes**.
+While it is well-structured and could technically be used in production, it is **not intended for commercialization**.
 The main goal is to explore and demonstrate best practices, patterns, and technologies in software development.
-
-## Getting Started
-
-### Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — must be running before executing any compose command
-- [Node.js](https://nodejs.org/) 20+ with npm or yarn — required to install frontend dependencies
-- Git
-
-### Setup
-
-1. **Clone the repository:**
-
-   ```sh
-   git clone "repository link"
-   cd python-flask-ts-sql-web-boilerplate
-   ```
-
-2. **Create the environment file** from the provided example and fill in the values:
-
-   ```sh
-   cp .env.example .env        # macOS / Linux / Git Bash
-   copy .env.example .env      # Windows CMD
-   ```
-
-3. **Install frontend dependencies** (required for the TypeScript watcher inside Docker):
-
-   ```sh
-   cd src/static/ts
-   npm install
-   # or
-   yarn install
-   ```
-
-4. **Build the Docker image** from the project root:
-
-   ```sh
-   docker compose -f dev.docker-compose.yml build --no-cache
-   ```
-
-5. **Start the containers:**
-
-   ```sh
-   docker compose -f dev.docker-compose.yml up --force-recreate
-   ```
-
-Once running, the services are available at:
-
-| Service | URL |
-|---|---|
-| Flask app | http://localhost:5050 |
-| Adminer (DB UI) | http://localhost:8080 |
-
-### Pre-Commit for Development
-
-NOTE: Install **pre-commit** inside repository folder.
-
-1. Once you're inside the virtual environment, let's install the hooks specified in the pre-commit. Execute: `pre-commit install`
-2. Now every time you try to commit, the pre-commit lint will run. If you want to do it manually, you can run the command: `pre-commit run --all-files`
-
-### Create a Virtual Env for Pre-Commit and Tests (And other things)
-
-1. Join to the correct path of the clone
-2. Execute: `python -m venv venv`
-3. Execute in Windows: `venv\Scripts\activate`
-4. Execute in Linux/Mac: `source venv/bin/activate`
-5. Execute: `pip install -r requirements.txt`
-6. Execute: `pip install -r requirements.dev.txt`
-7. Execute: `pip install -r requirements.test.txt`
-8. Execute all the commands you want
 
 ## Description
 
@@ -98,6 +28,8 @@ NOTE: Install **pre-commit** inside repository folder.
 **How to use it:** Clone the repository, bring up the Docker environment, and replace the `note` resource (blueprint, controller, service, DAO, ORM model, view, constants) with your own domain logic. The architecture, tooling, error handling, migrations, and test setup are already in place — you only write what's unique to your application.
 
 ## Technologies used
+
+The stack underpinning every layer described above:
 
 Backend:
 
@@ -124,6 +56,8 @@ Database:
 1. MySQL 8.0
 
 ## Libraries used
+
+Exact pinned versions per requirements file — these are what gets installed when you follow [Getting Started](#getting-started).
 
 #### Dependencies JS
 
@@ -189,159 +123,125 @@ pytest-timeout==2.3.1
 pytest-xdist==3.5.0
 ```
 
-## Portfolio Link
+## Getting Started
 
-[`https://www.diegolibonati.com.ar/#/project/python-flask-ts-sql-web-boilerplate`](https://www.diegolibonati.com.ar/#/project/python-flask-ts-sql-web-boilerplate)
+With the stack and libraries above in mind, follow these steps to get a working dev environment.
 
-## Testing Backend
+### Prerequisites
 
-> Requires a virtual environment with all dependencies installed. See [Create a Virtual Env](#create-a-virtual-env-for-pre-commit-and-tests-and-other-things).
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — must be running before executing any compose command
+- [Node.js](https://nodejs.org/) 22+ with npm or yarn — required to install frontend dependencies
+- Python 3.11+ — only required if you want to run pre-commit, tests, or migrations outside Docker
+- Git
 
-**Run all tests:**
+### Setup
 
-```sh
-python -m pytest
-```
-
-**Run with coverage report:**
-
-```sh
-python -m pytest --cov=src --cov-report=term-missing
-```
-
-**Run by marker:**
-
-```sh
-python -m pytest -m unit         # unit tests only (mocks, no DB)
-python -m pytest -m integration  # integration tests only (real DB)
-```
-
-**Run integration tests with a real MySQL database:**
-
-```sh
-# 1. Start the test database
-docker compose -f test.docker-compose.yml up -d
-
-# 2. Run integration tests
-python -m pytest -m integration
-
-# 3. Tear down the test database
-docker compose -f test.docker-compose.yml down -v
-```
-
-## Testing TS Files
-
-> Requires Node.js >=22.0.0.
-
-1. Navigate to the `src/static/ts` directory:
-
-```sh
-cd src/static/ts
-```
-
-2. Install dependencies (skip if already installed):
-
-```sh
-npm install
-```
-
-3. Run the tests:
-
-```sh
-npm test                  # run all tests
-npm run test:watch        # watch mode
-npm run test:coverage     # with coverage report
-```
-
-## Security Audit
-
-### Backend
-
-> Requires a virtual environment with `requirements.dev.txt` installed.
-
-```sh
-pip-audit -r requirements.txt
-```
-
-### Frontend
-
-```sh
-cd src/static/ts
-npm audit
-```
-
-## Production
-
-The production stack runs **Gunicorn** (WSGI server) behind **Nginx** (reverse proxy), with **MySQL 8.0** as the database — all orchestrated by Docker Compose.
-
-### Architecture
-
-```
-Browser → Nginx (:8080) → Gunicorn (:5050) → Flask app
-                ↓
-        /static/ served directly by Nginx (no Python involved)
-```
-
-- **Nginx** handles TLS termination, static file serving with long-lived cache headers, gzip compression, and proxies all dynamic requests to Gunicorn.
-- **Gunicorn** runs `cpu_count * 2 + 1` workers with 2 threads each. Config lives in `src/configs/gunicorn_config.py`.
-- **MySQL** data is persisted in a named Docker volume (`db-data`). The container is never exposed to the host.
-- The Flask container uses a **multi-stage Docker build** (`Dockerfile.production`): a `builder` stage compiles TypeScript and installs Python dependencies; a lean `runner` stage copies only the final artifacts and runs as a non-root user (`appuser`).
-
-### Startup sequence
-
-On every container start, `entrypoint.production.sh` runs automatically:
-
-1. Waits until `flask db upgrade` succeeds (retries every 2s until the DB is ready).
-2. Copies compiled static files to a shared Docker volume (consumed by Nginx).
-3. Launches Gunicorn.
-
-### Deploy
-
-1. **Set up environment variables** — copy `.env.example` to `.env` and fill in production values:
+1. **Clone the repository:**
 
    ```sh
-   cp .env.example .env
+   git clone "repository link"
+   cd python-flask-ts-sql-web-boilerplate
    ```
 
-2. **Build the production image:**
+2. **Create the environment file** from the provided example and fill in the values (see [Env Keys](#env-keys) for what each variable does):
 
    ```sh
-   docker compose -f prod.docker-compose.yml build --no-cache
+   cp .env.example .env        # macOS / Linux / Git Bash
+   copy .env.example .env      # Windows CMD
    ```
 
-3. **Start all services:**
+3. **Install frontend dependencies** (required for the TypeScript watcher inside Docker):
 
    ```sh
-   docker compose -f prod.docker-compose.yml up -d
+   cd src/static/ts
+   npm install
+   # or
+   yarn install
    ```
 
-Once running, the app is available at:
+4. **Build the Docker image** from the project root:
+
+   ```sh
+   docker compose -f dev.docker-compose.yml build --no-cache
+   ```
+
+5. **Start the containers:**
+
+   ```sh
+   docker compose -f dev.docker-compose.yml up --force-recreate
+   ```
+
+Once running, the services are available at:
 
 | Service | URL |
 |---|---|
-| App (via Nginx) | http://localhost:8080 |
+| Flask app | http://localhost:5050 |
+| Adminer (DB UI) | http://localhost:8080 |
 
-4. **Stop and tear down:**
+### Pre-Commit for Development
+
+Pre-commit hooks (Ruff lint + format, pip-audit) run automatically on every `git commit`. Setup requires a local Python virtual environment because `pre-commit` is a Python package and is also the same env you'll use for [Testing](#testing) and [Migrations](#migrations).
+
+1. **Create and activate the virtual environment** at the repository root:
 
    ```sh
-   docker compose -f prod.docker-compose.yml down
+   python -m venv venv
+   venv\Scripts\activate          # Windows
+   source venv/bin/activate       # Linux / macOS
    ```
 
-   To also remove the database volume (destructive — deletes all data):
+2. **Install all Python dependencies:**
 
    ```sh
-   docker compose -f prod.docker-compose.yml down -v
+   pip install -r requirements.txt
+   pip install -r requirements.dev.txt
+   pip install -r requirements.test.txt
    ```
 
-### Logs
+3. **Install the pre-commit hooks** declared in `.pre-commit-config.yaml`:
+
+   ```sh
+   pre-commit install
+   ```
+
+   From now on, every `git commit` will trigger the hooks. To run them manually against the entire repo:
+
+   ```sh
+   pre-commit run --all-files
+   ```
+
+## Env Keys
+
+The variables loaded from `.env` (created in step 2 of [Setup](#setup)). Defaults provided in `.env.example` work out of the box for local Docker development; production deploys must override `SECRET_KEY` and the MySQL credentials.
+
+| Key | Description |
+|---|---|
+| `HOST` | Network interface where Flask listens (`0.0.0.0` to accept all connections). |
+| `PORT` | Port where the Flask app is exposed inside the container. |
+| `SECRET_KEY` | Flask secret key used for session signing and CSRF protection. Use a long random string in production. |
+| `MYSQL_ROOT_PASSWORD` | Root password for the MySQL service. Used internally by Docker for initialization only. |
+| `MYSQL_HOST` | Hostname of the MySQL container in the Docker network (service name in Compose). |
+| `MYSQL_PORT` | Port where MySQL listens inside the Docker network (`3306`). |
+| `MYSQL_USER` | Non-root MySQL user that the Flask app uses to connect. |
+| `MYSQL_PASSWORD` | Password for `MYSQL_USER`. |
+| `MYSQL_DB_NAME` | Name of the MySQL database created automatically by the container. |
 
 ```sh
-docker compose -f prod.docker-compose.yml logs -f              # all services
-docker compose -f prod.docker-compose.yml logs -f boilerplate  # Flask/Gunicorn only
-docker compose -f prod.docker-compose.yml logs -f nginx        # Nginx only
+HOST="0.0.0.0"
+PORT=5050
+SECRET_KEY="secret_key"
+
+MYSQL_ROOT_PASSWORD=root
+MYSQL_HOST=boilerplate-db
+MYSQL_PORT=3306
+MYSQL_USER=boilerplate_user
+MYSQL_PASSWORD=boilerplate_pass
+MYSQL_DB_NAME=boilerplate_db
 ```
 
 ## Project Structure
+
+Layout of the codebase you just cloned. Each top-level folder is explained in the glossary below the tree.
 
 ```
 python-flask-ts-sql-web-boilerplate/
@@ -464,48 +364,9 @@ python-flask-ts-sql-web-boilerplate/
 13. **`tests/`** — Test suite mirroring `src/`. Unit tests mock DAOs and services; integration tests use a real SQLite in-memory database via the `db_session` fixture.
 14. **`migrations/`** — Alembic migration scripts generated by `flask db migrate`. Run `flask db upgrade` to apply pending migrations.
 
-## Migrations
-
-Schema changes are managed through **Flask-Migrate** (Alembic under the hood). Migration scripts live in `migrations/versions/`.
-
-> Requires a virtual environment with all dependencies installed and a running MySQL instance (or the dev Docker stack). See [Create a Virtual Env](#create-a-virtual-env-for-pre-commit-and-tests-and-other-things).
-
-**Generate a new migration** after changing or adding a model in `src/models/orm/`:
-
-```sh
-flask db migrate -m "feat: add email column to User model"
-```
-
-Always review the generated script in `migrations/versions/` before applying — Alembic may miss certain changes (e.g., column type changes, constraints).
-
-**Apply pending migrations:**
-
-```sh
-flask db upgrade
-```
-
-**Roll back the last migration:**
-
-```sh
-flask db downgrade
-```
-
-**Roll back to a specific revision:**
-
-```sh
-flask db downgrade <revision_id>
-```
-
-**Check current migration state:**
-
-```sh
-flask db current   # show applied revision
-flask db history   # show full migration history
-```
-
-> In production, `flask db upgrade` runs automatically at container startup via `entrypoint.production.sh` — no manual step needed.
-
 ## Architecture & Design Patterns
+
+The folder layout above is not arbitrary — it enforces the following architectural rules and patterns.
 
 ### MVC (Model-View-Controller)
 
@@ -616,42 +477,231 @@ def ensure_utc_timezone(note: Note, *_: Any) -> None:
 
 This handles the case where MySQL returns timezone-naive datetimes — the fix is applied transparently at the ORM layer rather than scattered across service or controller code.
 
-## **Version**
+## Migrations
 
-```
-APP VERSION: 0.0.1
-README UPDATED: 10/05/2026
-AUTHOR: Diego Libonati
-```
+Schema changes that follow from modifying ORM models are managed through **Flask-Migrate** (Alembic under the hood). Migration scripts live in `migrations/versions/`.
 
-## **Env Keys**
+> Requires the local virtual environment from [Pre-Commit for Development](#pre-commit-for-development) and a running MySQL instance (or the dev Docker stack).
 
-| Key | Description |
-|---|---|
-| `HOST` | Network interface where Flask listens (`0.0.0.0` to accept all connections). |
-| `PORT` | Port where the Flask app is exposed inside the container. |
-| `SECRET_KEY` | Flask secret key used for session signing and CSRF protection. Use a long random string in production. |
-| `MYSQL_ROOT_PASSWORD` | Root password for the MySQL service. Used internally by Docker for initialization only. |
-| `MYSQL_HOST` | Hostname of the MySQL container in the Docker network (service name in Compose). |
-| `MYSQL_PORT` | Port where MySQL listens inside the Docker network (`3306`). |
-| `MYSQL_USER` | Non-root MySQL user that the Flask app uses to connect. |
-| `MYSQL_PASSWORD` | Password for `MYSQL_USER`. |
-| `MYSQL_DB_NAME` | Name of the MySQL database created automatically by the container. |
+**Generate a new migration** after changing or adding a model in `src/models/orm/`:
 
 ```sh
-HOST="0.0.0.0"
-PORT=5050
-SECRET_KEY="secret_key"
-
-MYSQL_ROOT_PASSWORD=root
-MYSQL_HOST=boilerplate-db
-MYSQL_PORT=3306
-MYSQL_USER=boilerplate_user
-MYSQL_PASSWORD=boilerplate_pass
-MYSQL_DB_NAME=boilerplate_db
+flask db migrate -m "feat: add email column to User model"
 ```
 
-## **Endpoints API**
+Always review the generated script in `migrations/versions/` before applying — Alembic may miss certain changes (e.g., column type changes, constraints).
+
+**Apply pending migrations:**
+
+```sh
+flask db upgrade
+```
+
+**Roll back the last migration:**
+
+```sh
+flask db downgrade
+```
+
+**Roll back to a specific revision:**
+
+```sh
+flask db downgrade <revision_id>
+```
+
+**Check current migration state:**
+
+```sh
+flask db current   # show applied revision
+flask db history   # show full migration history
+```
+
+> In production, `flask db upgrade` runs automatically at container startup via `entrypoint.production.sh` — no manual step needed.
+
+## Testing
+
+With migrations applied and the app running, verify behavior end-to-end with the test suites for both backend and frontend.
+
+### Backend
+
+> Requires the local virtual environment from [Pre-Commit for Development](#pre-commit-for-development).
+
+**Run all tests:**
+
+```sh
+python -m pytest
+```
+
+**Run with coverage report:**
+
+```sh
+python -m pytest --cov=src --cov-report=term-missing
+```
+
+**Run by marker:**
+
+```sh
+python -m pytest -m unit         # unit tests only (mocks, no DB)
+python -m pytest -m integration  # integration tests only (real DB)
+```
+
+**Run integration tests with a real MySQL database:**
+
+```sh
+# 1. Start the test database
+docker compose -f test.docker-compose.yml up -d
+
+# 2. Run integration tests
+python -m pytest -m integration
+
+# 3. Tear down the test database
+docker compose -f test.docker-compose.yml down -v
+```
+
+### Frontend
+
+> Requires Node.js >=22.0.0.
+
+1. Navigate to the `src/static/ts` directory:
+
+```sh
+cd src/static/ts
+```
+
+2. Install dependencies (skip if already installed):
+
+```sh
+npm install
+```
+
+3. Run the tests:
+
+```sh
+npm test                  # run all tests
+npm run test:watch        # watch mode
+npm run test:coverage     # with coverage report
+```
+
+## Security Audit
+
+Beyond functional correctness, scan dependencies for known vulnerabilities before shipping.
+
+### Backend
+
+> Requires the local virtual environment from [Pre-Commit for Development](#pre-commit-for-development) (so `pip-audit` is installed).
+
+```sh
+pip-audit -r requirements.txt
+```
+
+### Frontend
+
+```sh
+cd src/static/ts
+npm audit
+```
+
+## Build
+
+When tests and audits pass, produce the distributable artifacts.
+
+### Frontend (TypeScript → JavaScript)
+
+The frontend has no JS framework. TypeScript sources in `src/static/ts/` are compiled to plain JavaScript in `src/static/js/` via `tsc` (with `tsc-alias` resolving path aliases and a post-processing step fixing relative imports).
+
+```sh
+cd src/static/ts
+npm install        # skip if already installed
+npm run build
+```
+
+The output in `src/static/js/` is what Flask serves in development and what Nginx serves directly in production.
+
+### Docker images
+
+Both stacks ship as Docker images.
+
+**Development image** (Flask + auto-reload + TS watcher):
+
+```sh
+docker compose -f dev.docker-compose.yml build --no-cache
+```
+
+**Production image** — multi-stage `Dockerfile.production`: a `builder` stage compiles TypeScript and installs Python dependencies; a lean `runner` stage copies only the final artifacts and runs Gunicorn as a non-root user (`appuser`):
+
+```sh
+docker compose -f prod.docker-compose.yml build --no-cache
+```
+
+## Production
+
+With [Tested](#testing), [Audited](#security-audit), and [Built](#build) artifacts ready, deploy the production stack: **Gunicorn** (WSGI server) behind **Nginx** (reverse proxy), with **MySQL 8.0** as the database — all orchestrated by Docker Compose.
+
+### Architecture
+
+```
+Browser → Nginx (:8080) → Gunicorn (:5050) → Flask app
+                ↓
+        /static/ served directly by Nginx (no Python involved)
+```
+
+- **Nginx** handles TLS termination, static file serving with long-lived cache headers, gzip compression, and proxies all dynamic requests to Gunicorn.
+- **Gunicorn** runs `cpu_count * 2 + 1` workers with 2 threads each. Config lives in `src/configs/gunicorn_config.py`.
+- **MySQL** data is persisted in a named Docker volume (`db-data`). The container is never exposed to the host.
+
+### Startup sequence
+
+On every container start, `entrypoint.production.sh` runs automatically:
+
+1. Waits until `flask db upgrade` succeeds (retries every 2s until the DB is ready).
+2. Copies compiled static files to a shared Docker volume (consumed by Nginx).
+3. Launches Gunicorn.
+
+### Deploy
+
+> Make sure the production image has been built — see [Build → Docker images](#docker-images).
+
+1. **Configure production environment** — copy `.env.example` to `.env` and override the values for production (strong random `SECRET_KEY`, real DB credentials, the public host you'll bind to). Refer to [Env Keys](#env-keys) for the full list:
+
+   ```sh
+   cp .env.example .env
+   ```
+
+2. **Start all services:**
+
+   ```sh
+   docker compose -f prod.docker-compose.yml up -d
+   ```
+
+   Once running, the app is available at:
+
+   | Service | URL |
+   |---|---|
+   | App (via Nginx) | http://localhost:8080 |
+
+3. **Stop and tear down:**
+
+   ```sh
+   docker compose -f prod.docker-compose.yml down
+   ```
+
+   To also remove the database volume (destructive — deletes all data):
+
+   ```sh
+   docker compose -f prod.docker-compose.yml down -v
+   ```
+
+### Logs
+
+```sh
+docker compose -f prod.docker-compose.yml logs -f              # all services
+docker compose -f prod.docker-compose.yml logs -f boilerplate  # Flask/Gunicorn only
+docker compose -f prod.docker-compose.yml logs -f nginx        # Nginx only
+```
+
+## Endpoints API
+
+Reference for the HTTP surface exposed by the deployed app.
 
 ### Views
 
@@ -786,3 +836,15 @@ MYSQL_DB_NAME=boilerplate_db
 ## Known Issues
 
 None at the moment.
+
+## Version
+
+```
+APP VERSION: 0.0.1
+README UPDATED: 10/05/2026
+AUTHOR: Diego Libonati
+```
+
+## Portfolio Link
+
+[`https://www.diegolibonati.com.ar/#/project/python-flask-ts-sql-web-boilerplate`](https://www.diegolibonati.com.ar/#/project/python-flask-ts-sql-web-boilerplate)
