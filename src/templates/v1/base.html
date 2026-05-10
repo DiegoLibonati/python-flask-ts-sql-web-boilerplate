@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+
+    <meta
+      name="description"
+      content="Python Flask Ts SQL Web Boilerplate is a production-ready boilerplate for building full-stack web applications with Flask, SQLAlchemy, and TypeScript, designed to eliminate the repetitive setup that comes with every new MVC web project."
+    />
+    <meta
+      name="keywords"
+      content="Python Flask Ts SQL Web Boilerplate, PythonFlaskTsSQLWebBoilerplate, python-flask-ts-sql-web-boilerplate"
+    />
+    <meta name="author" content="Diego Libonati" />
+
+    <meta property="og:title" content="Python Flask Ts SQL Web Boilerplate" />
+    <meta
+      property="og:description"
+      content="Python Flask Ts SQL Web Boilerplate is a production-ready boilerplate for building full-stack web applications with Flask, SQLAlchemy, and TypeScript, designed to eliminate the repetitive setup that comes with every new MVC web project."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://your-site.com" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Python Flask Ts SQL Web Boilerplate" />
+    <meta
+      name="twitter:description"
+      content="Python Flask Ts SQL Web Boilerplate is a production-ready boilerplate for building full-stack web applications with Flask, SQLAlchemy, and TypeScript, designed to eliminate the repetitive setup that comes with every new MVC web project."
+    />
+    <meta name="twitter:creator" content="@your-user" />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/global.css') }}"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/fontawesome.min.css"
+      rel="stylesheet"
+    />
+
+    {% block linkcss %} {% endblock linkcss %}
+
+    <title>{% block title %} {% endblock title %}</title>
+  </head>
+  <body>
+    <!-- FLASH ALERTS -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <ul class="alerts">
+      {% for category, message in messages %}
+      <li
+        class="alert alert--{{ category }} js-alert"
+        id="js-alert-{{ loop.index }}"
+      >
+        <div class="alert__wrapper-text">
+          <h2 class="alert__text">{{ message }}</h2>
+        </div>
+        <button
+          type="button"
+          aria-label="close alert"
+          class="alert__btn-close js-close-alert"
+          id="js-close-alert-{{ loop.index }}"
+        >
+          <img
+            src="{{ url_for('static', filename='assets/close-white.svg') }}"
+            alt="close alert"
+            class="alert__btn-close-image"
+          />
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+
+    <!-- END FLASH ALERTS -->
+
+    <!-- HEADER -->
+
+    <header class="header">
+      <div class="header__logo">
+        <div class="header__wrapper-title">
+          <h2 class="header__title">Python Flask Ts SQL Web Boilerplate</h2>
+        </div>
+
+        <div class="header__wrapper-actions">
+          <button
+            class="header__action header__action--open header__action--active js-open-navbar"
+            aria-label="open navbar"
+          >
+            <i class="fa fa-bars header__action-icon" aria-hidden="true"></i>
+          </button>
+          <button
+            class="header__action header__action--close js-close-navbar"
+            aria-label="close navbar"
+          >
+            <i class="fa fa-close header__action-icon" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <nav class="nav js-navbar">
+        <ul class="nav__list">
+          <li class="nav__item" title="Home">
+            <a
+              href="{{ url_for(context['home_view']) }}"
+              target="_self"
+              class="nav__link {{ 'nav__link--active' if context['current_route'] == 'Home' }}"
+              aria-label="home"
+            >
+              <div class="nav__wrapper-icon">
+                <i class="fa fa-home nav__icon" aria-hidden="true"></i>
+              </div>
+              <h2 class="nav__text">Home</h2>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- END HEADER -->
+
+    <!-- CONTENT -->
+
+    {% block content %} {% endblock content %}
+
+    <!-- END CONTENT -->
+
+    <!-- JS -->
+
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/index.js') }}"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/js/all.min.js"></script>
+
+    {% block javascript %} {% endblock javascript %}
+
+    <!-- END JS -->
+  </body>
+</html>

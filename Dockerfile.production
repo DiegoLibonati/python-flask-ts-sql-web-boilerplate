@@ -1,0 +1,52 @@
+FROM python:3.11-alpine AS builder
+
+WORKDIR /home/app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apk add --no-cache \
+    build-base \
+    libffi-dev \
+    openssl-dev \
+    nodejs \
+    npm
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+COPY src/static/ts/package*.json ./src/static/ts/
+RUN cd src/static/ts && npm ci
+
+COPY . .
+
+RUN cd src/static/ts && npm run build
+
+
+FROM python:3.11-alpine AS runner
+
+WORKDIR /home/app
+
+ENV PYTHONPATH="/home/app"
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apk add --no-cache libffi openssl
+
+RUN addgroup -S appuser && adduser -S -G appuser appuser \
+    && mkdir /static && chown appuser:appuser /static
+
+COPY --from=builder /install /usr/local
+
+COPY --from=builder /home/app .
+
+RUN rm -rf src/static/ts entrypoint.development.sh app.py requirements.txt \
+    && chown -R appuser:appuser /home/app \
+    && chmod +x ./entrypoint.production.sh
+
+USER appuser
+
+EXPOSE 5050
+
+ENTRYPOINT ["./entrypoint.production.sh"]

@@ -1,0 +1,57 @@
+services:
+  boilerplate:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5050:5050"
+      - "35729:35729"
+    volumes:
+      - .:/home/app
+      - /home/app/src/static/ts/node_modules
+    depends_on:
+      boilerplate-db:
+        condition: service_healthy
+    networks:
+      - boilerplate-net
+
+  boilerplate-db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - boilerplate-net
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - boilerplate-db
+    networks:
+      - boilerplate-net
+
+volumes:
+  db-data:
+
+networks:
+  boilerplate-net:
+    driver: bridge

@@ -1,0 +1,84 @@
+{% extends 'v1/base.html' %}
+
+{% block title %} Home {% endblock title %}
+
+{% block content %}
+
+<main class="main main--app">
+  <section class="page-title">
+    <h1 class="page-title__text">Notes</h1>
+  </section>
+
+  {% if context["notes"] %}
+
+  <section class="notes">
+    {% for note in context["notes"] %}
+    <article class="note" id="note-{{ note.id }}">
+      <div class="note__wrapper-text">
+        <textarea
+          class="note__text-area js-text-area"
+          disabled
+        >{{ note.content }}</textarea>
+      </div>
+
+      <div class="note__wrapper-bottom">
+        <h2 class="note__date">
+          {{ note.created_at.strftime('%d %B, %Y') }}
+        </h2>
+
+        <div class="note__actions">
+          <button
+            type="button"
+            aria-label="edit note"
+            class="note__action note__action--edit button button--rounded button--secondary js-btn-edit-note"
+          >
+            <i class="fa fa-pencil note__icon" aria-hidden="true"></i>
+          </button>
+
+          <button
+            type="button"
+            aria-label="confirm edit note"
+            class="note__action note__action--confirm-edit button button--rounded button--secondary js-btn-confirm-edit-note"
+          >
+            <i class="fa fa-check note__icon" aria-hidden="true"></i>
+          </button>
+
+          <button
+            type="button"
+            aria-label="delete note"
+            class="note__action note__action--delete button button--rounded button--error js-btn-delete-note"
+          >
+            <i class="fa fa-trash note__icon" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+
+  {% else %}
+
+  <section class="notes-empty">
+    <h2 class="notes-empty__text">No notes have been created yet!</h2>
+  </section>
+
+  {% endif %}
+</main>
+
+<div class="note-add">
+  <input
+    type="text"
+    class="note-add__input js-input"
+    placeholder="Write your note..."
+    aria-label="note content"
+  />
+  <button
+    type="button"
+    aria-label="add note"
+    class="note-add__btn button button--rounded button--secondary js-btn-add-note"
+  >
+    <i class="fa fa-plus note-add__icon" aria-hidden="true"></i>
+  </button>
+</div>
+
+{% endblock content %}

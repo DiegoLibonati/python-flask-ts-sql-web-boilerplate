@@ -1,0 +1,28 @@
+.main {
+  margin-left: var(--sidebar-width);
+  padding: var(--spacing-xl);
+  min-height: 100vh;
+}
+
+.main--app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding-bottom: calc(var(--spacing-xl) * 4);
+}
+
+.page-title__text {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+    padding: var(--spacing-md);
+    padding-bottom: calc(var(--spacing-xl) * 4);
+  }
+}
