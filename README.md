@@ -11,7 +11,7 @@ The main goal is to explore and demonstrate best practices, patterns, and techno
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) — must be running before executing any compose command
-- [Node.js](https://nodejs.org/) 18+ with npm or yarn — required to install frontend dependencies
+- [Node.js](https://nodejs.org/) 20+ with npm or yarn — required to install frontend dependencies
 - Git
 
 ### Setup
