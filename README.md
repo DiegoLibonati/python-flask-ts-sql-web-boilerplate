@@ -291,7 +291,7 @@ python-flask-ts-sql-web-boilerplate/
 │   │   └── note_service.py                 # Note business rules, calls NoteDAO
 │   │
 │   ├── static/
-│   │   ├── assets/                         # SVG icons and static assets
+│   │   ├── pbulic/                         # Public folder for statics
 │   │   ├── css/                            # Component and global stylesheets
 │   │   ├── js/                             # Compiled TypeScript output
 │   │   └── ts/                             # TypeScript source code

@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
 
     <meta
       name="description"
@@ -11,7 +10,7 @@
     />
     <meta
       name="keywords"
-      content="Python Flask Ts SQL Web Boilerplate, PythonFlaskTsSQLWebBoilerplate, python-flask-ts-sql-web-boilerplate"
+      content="Python Flask Ts SQL Web Boilerplate, python-flask-ts-sql-web-boilerplate"
     />
     <meta name="author" content="Diego Libonati" />
 
@@ -22,6 +21,7 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://your-site.com" />
+    <meta property="og:image" content="{{ url_for('static', filename='public/icon-192.png') }}" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Python Flask Ts SQL Web Boilerplate" />
@@ -29,8 +29,12 @@
       name="twitter:description"
       content="Python Flask Ts SQL Web Boilerplate is a production-ready boilerplate for building full-stack web applications with Flask, SQLAlchemy, and TypeScript, designed to eliminate the repetitive setup that comes with every new MVC web project."
     />
+    <meta name="twitter:image" content="{{ url_for('static', filename='public/icon-192.png') }}" />
     <meta name="twitter:creator" content="@your-user" />
 
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='public/icon-192.png') }}" />
+    <link rel="manifest" href="{{ url_for('static', filename='public/manifest.json') }}" />
+    <link rel="icon" href="{{ url_for('static', filename='public/vite.svg') }}" type="image/svg+xml" />
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/global.css') }}"
@@ -65,7 +69,7 @@
           id="js-close-alert-{{ loop.index }}"
         >
           <img
-            src="{{ url_for('static', filename='assets/close-white.svg') }}"
+            src="{{ url_for('static', filename='public/close-white.svg') }}"
             alt="close alert"
             class="alert__btn-close-image"
           />
